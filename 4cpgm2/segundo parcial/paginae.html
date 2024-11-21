@@ -1,598 +1,471 @@
-@import url('file:///C:/Users/guzma/OneDrive/Documentos/4cpgm/segundo%20parcial/paginae.html');
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>fumo-Racing</title>
 
+<link rel="stylesheet" type="text/css" href="paginaf.css">
 
+<style>
 
-* {
+     #openCartButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-  margin: 0;
+        #openCartButton:hover {
+            background-color: #218838;
+        }
 
-  padding: 0;
+#cart {
+            position: fixed;
+            top: 0;
+            right: -300px;  /* Inicialmente oculto, fuera de la pantalla */
+            width: 300px;
+            height: 100%;
+            background-color: #f4f4f4;
+            box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.3);
+            transition: right 0.3s ease;
+            padding: 20px;
+            z-index: 1000;
+        }
 
-  box-sizing: border-box;
+        #cart.open {
+            right: 0; /* Se desliza hacia la pantalla */
+        }
 
-  text-decoration: none;
+        /* Estilo del contenido del carrito */
+        .cart-header {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
 
-  list-style: none;
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
 
-}
+        .cart-item-name {
+            font-weight: bold;
+        }
 
+        .cart-item-price {
+            color: #28a745;
+        }
 
-body {
+        .cart-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
 
-font-family: 'Poppins', sans-serif;
+        .cart-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 30px;
+            color: #333;
+            cursor: pointer;
+        }
 
-} 
+        .cart-close:hover {
+            color: #ff0000;
+        }
 
-img{
+         .product-button {
+            padding: 12px 20px;
+            margin: 5px;
+            background-color: #12730F;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
 
-max-width: 100%;
+        .product-button:hover {
+            background-color: #0E550B;
 
-}
 
 
-.container{
 
-max-width: 1200px;
 
-margin: 0 auto;
+    </style>
 
-}
+</head>
 
+<body>
 
-.header{
 
-background-color: #000000;
+<header class="header">
 
 
-}
+<div class="container">
 
 
-.menu{
+<div class="menu">
 
-display: flex;
+<a href="file:///C:/Users/guzma/OneDrive/Documentos/4cpgm/primer%20parcial/paginaa.html"class="logo">fumos's shop</a>
 
-justify-content: space-between;
+    <input type="checkbox" id="menu">
 
-align-items: center;
+    <label for="menu">
 
-padding: 20px 0;
+    <img class="menu-icono" src="https://flyclipart.com/thumb2/three-horizontal-lines-lines-popup-icon-with-png-and-vector-868472.png"width = "4%" height = "4%">
 
-}
+    </label>
 
+                  <nav class="navbar">
 
-.logo {
+                   <ul>
 
-color: #cdcdcd;
+                 <li> <a href="http://localhost/4cpgm2/primer%20parcial/paginaa.html">Inicio</a> </li>
 
-font-size: 25px;
 
-font-weight: 800;
+                  <li> <a href="http://localhost/4cpgm2/segundo%20parcial/paginae.html">Productos</a> </li>
 
-text-transform: uppercase;
+                  <li> <a href="http://localhost/4cpgm2/segundo%20parcial/paginac.html">Contacto</a> </li>
 
-}
+                  <li> <a href="http://localhost/login/registro.php">iniciar sesion</a> </li>
 
+                </ul>
 
-.menu .navbar ul{
+    <button id="openCartButton">Abrir Carrito</button>
 
-display: flex;
+    <div id="cart">
+        <span class="cart-close" id="closeCartButton">&times;</span>
+        <div class="cart-header">
+            <h2>Carrito de Compras</h2>
+        </div>
 
-}
+        <div id="cartItems"></div>
 
-.menu .navbar ul li a {
+        <div class="cart-footer">
+            <span>Total:</span>
+            <span id="totalPrice">$0</span>
+        </div>
+<script>
+    const openCartButton = document.getElementById('openCartButton');
+    const closeCartButton = document.getElementById('closeCartButton');
+    const cart = document.getElementById('cart');
+    const cartItemsContainer = document.getElementById('cartItems');
+    const totalPriceElement = document.getElementById('totalPrice');
+    const clearCartButton = document.getElementById('clearCartButton');
 
-font-size: 18px;
+    // Cargar datos del carrito desde localStorage
+    let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    let totalPrice = JSON.parse(localStorage.getItem('totalPrice')) || 0;
 
-padding: 0 20px;
+    // Abrir el carrito
+    openCartButton.addEventListener('click', function () {
+        cart.classList.add('open');
+    });
 
-color: #cdcdcd;
+    // Cerrar el carrito
+    closeCartButton.addEventListener('click', function () {
+        cart.classList.remove('open');
+    });
 
-display: block;
+    // Agregar un producto al carrito
+    function addProduct(name, price) {
+        const existingProduct = cartItems.find(item => item.name === name);
 
-font-weight: 600;
+        if (existingProduct) {
+            existingProduct.quantity++;
+        } else {
+            cartItems.push({ name, price, quantity: 1 });
+        }
 
-}
+        updateCart();
+    }
 
-.menu .navbar ul li a:hover {
+    // Quitar una unidad de un producto
+    function removeProduct(name) {
+        const existingProduct = cartItems.find(item => item.name === name);
 
-color: #cdcdcd;
+        if (existingProduct) {
+            if (existingProduct.quantity > 1) {
+                existingProduct.quantity--;
+            } else {
+                cartItems = cartItems.filter(item => item.name !== name);
+            }
+        }
 
-}
+        updateCart();
+    }
 
+    // Eliminar todas las unidades de un producto
+    function removeAllUnits(name) {
+        cartItems = cartItems.filter(item => item.name !== name);
+        updateCart();
+    }
 
-#menu {
+    // Vaciar el carrito
+    clearCartButton.addEventListener('click', function () {
+        cartItems = []; // Vaciar la lista de productos
+        totalPrice = 0; // Reiniciar el total a 0
+        localStorage.removeItem('cartItems'); // Eliminar los datos del carrito en localStorage
+        localStorage.removeItem('totalPrice'); // Eliminar el precio total en localStorage
+        updateCart(); // Actualizar la vista del carrito
+    });
 
-display: none;
+    // Actualizar la vista del carrito y guardar en localStorage
+    function updateCart() {
+        cartItemsContainer.innerHTML = ''; // Limpiar el contenedor
+        totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0); // Calcular el total
+        totalPriceElement.textContent = `$${totalPrice}`; // Actualizar el total en la interfaz
 
+        cartItems.forEach(item => {
+            const itemElement = document.createElement('div');
+            itemElement.classList.add('cart-item');
 
-}
+            itemElement.innerHTML = `
+                <span class="cart-item-name">${item.name} (x${item.quantity})</span>
+                <span class="cart-item-price">$${item.price * item.quantity}</span>
+                <button class="remove-one" data-name="${item.name}">-</button>
+                <button class="remove-all" data-name="${item.name}">Eliminar</button>
+            `;
 
+            cartItemsContainer.appendChild(itemElement);
+        });
 
-.menu-icono{
+        // Asignar eventos a los botones dinámicos
+        document.querySelectorAll('.remove-one').forEach(button => {
+            button.addEventListener('click', function () {
+                removeProduct(this.getAttribute('data-name'));
+            });
+        });
 
-width: 25px;
+        document.querySelectorAll('.remove-all').forEach(button => {
+            button.addEventListener('click', function () {
+                removeAllUnits(this.getAttribute('data-name'));
+            });
+        });
 
-}
+        // Guardar el carrito en localStorage
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        localStorage.setItem('totalPrice', JSON.stringify(totalPrice));
+    }
 
+    // Al cargar la página, actualizar la vista del carrito
+    updateCart();
+</script>
+<button id="clearCartButton" class="btn-1">Vaciar Carrito</button>
 
-.menu label {
 
-cursor: pointer;
 
-display: none;
+<button class="info-btn" onclick="alert('se realizara la compra a continuacion')">agregar al carrito</button>
 
+    </div>
 
-}
+</header>
 
+   <main class="products container">
 
+<br><br>
+    <h2>fumos</h2>
+    <h2>(peluches)</h2>
+             <p><h3>
 
-.header-content {
+             "que es un fumo, un fumo es un peluche de la franquicia touhou con estilo chibi generalmente de un tamaño de 30 cm" 
+          </h3>
 
-display: flex;
+             </p>
+   
 
-justify-content: space-between;
+    <div class="products-content">
 
-padding: 80px 0;
+    
+    <div class="products-1">
 
-}
+    <img src="https://http2.mlstatic.com/D_NQ_NP_963064-CBT72599049235_102023-O.webp"width = "35%" height = "50%">
 
+    <h4>Muñeca de peluche Touhou Project Fumo saigyouji yuyuko</h4>
+     <p>$1,500</p>
 
-.header-txt {
+      <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo saigyouji yuyuko', 1500)">Agregar al carrito </button>
 
-flex-basis: 50%;
+     <a href="http://localhost/4cpgm2/tercer%20parcial/pes.html"class="btn-1">informacion</a>
 
-padding-right: 80px;
+    </div>
 
-}
+   
 
+    <div class="products-1">
 
-.header-txt h1 {
+    <img src="https://m.media-amazon.com/images/I/51i1JBw1+AL._AC_UF894,1000_QL80_.jpg"width = "35%" height = "50%">
 
-font-size: 50px;
+    <h4>Muñeca de peluche Touhou Project Fumo cirno</h4>
 
-line-height: 1.2;
+    <p>$1,250</p>
 
-text-transform: uppercase;
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo cirno', 1250)">Agregar al carrito </button>
 
-color: #cdcdcd;
+     <a href="http://localhost/4cpgm2/tercer%20parcial/pec.html"class="btn-1">informacion</a>
+    </div>
 
-margin-bottom: 15px;
 
-}
+    <div class="products-1">
 
+    <img src="https://m.media-amazon.com/images/I/619SGpFbA3L.jpg"width = "35%" height = "50%">
 
-p {
+    <h4>Muñeca de peluche Touhou Project Fumo sakuya izayoi</h4>
 
-   font-size: 18px;
+    <p>$1,700</p>
 
-   color: #515151;
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo sakuya izayoi', 1700)">Agregar al carrito </button>
 
-   margin-bottom: 25px;
+     <a href="http://localhost/4cpgm2/tercer%20parcial/pesi.html"class="btn-1">informacion</a>
 
-}
+    </div>
 
+    <div class="products-1">
 
-.btn-1 {
+    <img src="https://http2.mlstatic.com/D_NQ_NP_952857-CBT69217955617_052023-O.webp"width = "35%" height = "50%">
 
-display: inline-block;
+    <h4>Muñeca de peluche Touhou Project Fumo Hakurei Reimu</h4>
 
-padding: 10px 25px;
+    <p>$1,500</p>
 
-color: #FFFFFF;
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo Hakurei Reimu', 1500)">Agregar al carrito </button>
 
-background-color: #1C4C96;
+     <a href="http://localhost/4cpgm2/tercer%20parcial/pehr.html"class="btn-1">informacion</a>
 
-text-transform: uppercase;
+    </div>
 
-border-radius: 25px;
+    <div class="products-1">
 
-font-size: 16px;
+    <img src="https://http2.mlstatic.com/D_NQ_NP_917580-CBT73602485846_122023-O.webp"width = "35%" height = "50%">
 
-}
+    <h4>Muñeca de peluche Touhou Project Fumo kirisame marisa</h4>
 
+    <p>$1,200</p>
 
-.btn-1:hover {
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo kirisame marisa', 1200)">Agregar al carrito </button>
 
-background-color: #1C4C96;
+     <a href="http://localhost/4cpgm2/tercer%20parcial/pekm.html"class="btn-1">informacion</a>
 
-}
+    </div>
 
+    <div class="products-1">
 
-.header-img {
+    <img src="https://http2.mlstatic.com/D_NQ_NP_966459-CBT69894264670_062023-O.webp"width = "35%" height = "50%">
 
-flex-basis: 50%;
+    <h4>Muñeca de peluche Touhou Project Fumo komeiji koishi</h4>
 
-}
+    <p>$1,600</p>
 
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo komeiji koishi', 1600)">Agregar al carrito </button>
 
-.services {
+     <a href="http://localhost/4cpgm2/tercer%20parcial/pekk.html"class="btn-1">informacion</a>
 
-padding: 80px 0;
+    </div>
 
-text-align: center;
+    <div class="products-1">
 
-}
+    <img src="https://img.amiami.com/images/product/main/222/GOODS-04230807.jpg"width = "35%" height = "50%">
 
+    <h4>Muñeca de peluche Touhou Project Fumo undongein inaba</h4>
 
-h2 {
+    <p>$1,200</p>
 
-color: #1C4C96;
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo undongein inaba', 1200)">Agregar al carrito </button>
 
-font-size: 40px;
+     <a href="http://localhost/4cpgm2/tercer%20parcial/peui.html" class="btn-1">informacion</a>
+    </div>
 
-}
+    <div class="products-1">
 
+    <img src="https://i.ebayimg.com/images/g/MTwAAOSwkQJdnNP7/s-l500.jpg"width = "35%" height = "50%">
 
-.services-content {
+    <h4>Muñeca de peluche Touhou Project Fumo shion</h4>
 
-display: flex;
+    <p>$1,275</p>
 
-justify-content: space-between;
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo shion', 1275)">Agregar al carrito </button>
 
-margin-top: 50px;
+     <a href="http://localhost/4cpgm2/tercer%20parcial/peshion.html" class="btn-1">informacion</a>
 
-}
+    </div>
 
+     <div class="products-1">
 
-.services-1 {
+    <img src="https://img1.picmix.com/output/stamp/normal/0/6/5/6/2526560_2947d.png"width = "35%" height = "50%">
 
-flex-basis: calc(33.3% - 40px);
+    <h4>Muñeca de peluche Touhou Project Fumo fladre scarlet</h4>
 
-}
+    <p>$1,800</p>
 
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo fladre scarlet', 1800)">Agregar al carrito </button>
 
-.services-1 img {
+     <a href="http://localhost/4cpgm2/tercer%20parcial/pefs.html"class="btn-1">informacion</a>
 
-width: 30px;
+    </div>
 
-margin-bottom: 10px;
+     <div class="products-1">
 
-}
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNQd00wbduuAgORF2N27bjJK0tarQl-rwAgw&s"width = "35%" height = "50%">
 
+    <h4>Muñeca de peluche Touhou Project Fumo remilia scarlet</h4>
 
-.services-1 h3 {
+    <p>$2,000</p>
 
-color: #1B1B1B;
+    <button class="product-button" onclick="addProduct('Muñeca de peluche Touhou Project Fumo remilia scarlet', 2000)">Agregar al carrito </button>
 
-font-size: 20px;
+    <a href="http://localhost/4cpgm2/tercer%20parcial/pers.html"class="btn-1">informacion</a>
 
-margin-bottom: 10px;
+    </div>
 
-}
 
+    </div>
 
-.products {
 
-padding: 0 0 80px 0;
 
-text-align: center;
+       
 
-}
+        <footer  class="footer container">
 
+         <div class="footer-content">
 
-.products-content {
+         <a href="#" class="logo">fumos's shop</a>
 
-margin-top: 50px;
+               <ul>
 
-display: grid;
+                 <li> <a href="http://localhost/4cpgm2/primer%20parcial/paginaa.html">Inicio</a> </li>
 
-grid-template-columns: repeat(3, 1fr);
 
-gap: 20px;
+                  <li> <a href="http://localhost/4cpgm2/segundo%20parcial/paginae.html">Productos</a> </li>
 
+                  <li> <a href="http://localhost/4cpgm2/segundo%20parcial/paginac.html">Contacto</a> </li>
 
-}
+                  <li> <a href="#">Carrito</a> </li>
 
+                  <li> <a href="http://localhost/login/registro.php">iniciar sesion</a> </li>
 
-.products-1 {
+               </ul>
 
-background-color: #FFFDD0;
+         </div>
 
-padding: 20px;
+        </footer>
 
-}
 
+   </main>
 
-.products-1 h4 {
 
-color: #1B1B1D;
 
-font-size: 22px;
+</html>
 
-margin-bottom: 5px;
-
-}
-
-
-.products-1 p {
-
-color: #1C4C96;
-
-margin-bottom: 10px;
-
-}
-
-
-.testimonio {
-
-text-align: center;
-
-padding-bottom: 80px;
-
-}
-
-
-.testimonio-content {
-
-display: flex;
-
-justify-content: space-between;
-
-margin-bottom: 50px;
-
-}
-
-
-.testimonio-1 {
-
-flex-basis: calc(50% - 20px);
-
-padding: 20px;
-
-box-shadow: 0 0 20px rgb(0, 0, 0, 0.2);
-
-border-radius: 20px;
-
-}
-
-
-.testimonio-1 imig{
-
-width: 80px;
-
-height: 80px;
-
-border-radius: 50%;
-
-margin-bottom: 5px;
-
-}
-
-
-.testimonio-1 h3 {
-
-color: #1B1B1D;
-
-font-size: 20px;
-
-text-transform: uppercase;
-
-margin-bottom: 15px;
-
-}
-
-
-.testimonio-1 p {
-
-    margin-bottom: 0;
-
-}
-
-
-.footer {
-
-border-top: 1px solid #1B1B1D2B;
-
-padding: 20px 0;
-
-}
-
-
-.footer-content {
-
-display: flex;
-
-justify-content: space-between;
-
-align-items: center;
-
-}
-
-
-.footer-content ul {
-
-display: flex;
-
-}
-
-
-.footer-content ul li a {
-
-display: blockpa;
-
-padding: 10px;
-
-color: #1B1b1D;
-
-font-size: 18px;
-
-font-weight: 600;
-
-}
-
-
-.footer-content ul li a:hover{
-
-color: #FF8400;
-
-}
-
-
-@media(max-width:991px){
-
-
-.menu {
-
-padding: 20px;
-
-position: relative;
-
-}
-
-
-.menu label {
-
-display: initial;
-
-}
-
-
-.menu .navbar {
-
-position: absolute;
-
-top: 100%;
-
-left: 0;
-
-right: 0;
-
-background-color:#FF5A2C;
-
-display: none;
-
-}
-
-      .menu .navbar ul {
-
-       flex-direction: column;
-
-     }
-
-      .menu .navbar ul li {
-
-         width: 100%;
-
-         padding: 20px 0;
-
-
-     }
-
-      .menu .navbar ul li a:hover {
-
-       color: #000000 ;
-
-     }
-
-
-     #menu:checked ~ .navbar {
-
-      display: initial;
-
-     }
-
-
-     .header-content {
-
-      padding: 30px;
-
-      flex-direction: column;
-
-      text-align: center;
-
-     }
-
-
-     .header-txt {
-
-      padding: 0 0 40px 0;
-
-
-     }
-
-
-     .services {
-
-      padding: 30px;
-
-     }
-
-     .services-content {
-
-      flex-direction: column;
-
-      margin-top: 30px;
-
-     }
-
-
-     .products {
-
-      padding: 30px;
-
-     }
-
-
-     .products-content {
-
-      margin-top: 30px;
-
-      grid-template-columns: repeat(1, 1fr);
-
-     }
-     .map {
-      filter: grayscale(100%) invert(100%)contrast(100%);
-     }
-
-
-     .testimonio {
-
-      padding: 30px;
-
-     }
-
-
-     .testimonio-content {
-
-      flex-direction: column;
-
-      margin-top: 30px;
-
-
-     }
-
-
-     .testimonio-1 {
-
-      margin-bottom: 60px;
-
-     }
-
-
-     .footer {
-
-      padding: 60px;
-
-      text-align: center;
-
-     }
-
-
-     .footer-content {
-
-      flex-direction: column;
-
-     }
-
-
-     .footer-content ul {
-
-        flex-direction: column;
-
-     }
-
-
-     
-
-}
 
